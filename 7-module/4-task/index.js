@@ -25,6 +25,10 @@ export default class StepSlider {
     `);
   }
 
+  sub(ref) {
+    return this.elem.querySelector(`.slider__${ref}`);
+	}
+	
   setValue(value) {
     this.value = value;
 
@@ -61,8 +65,11 @@ export default class StepSlider {
         bubbles: true
       })
     );
-  }
+	}
+	
 
+//----Drag-and-Drop---//
+	
   onPointerDown = event => {
     event.preventDefault();
 
@@ -120,9 +127,4 @@ export default class StepSlider {
       })
     );
   };
-
-  sub(ref) {
-    return this.elem.querySelector(`.slider__${ref}`);
-  }
-
 }
