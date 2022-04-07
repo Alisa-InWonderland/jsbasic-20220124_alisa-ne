@@ -31,7 +31,7 @@ export default class RibbonMenu {
 
 		for (let category of this.categories) {
 			this.ribbonInner.insertAdjacentHTML('beforeend',
-				`<a href="#" class="ribbon__item" data-id="${category.id}">${category.name}</a>`);
+				`<a href="#" class="ribbon__item" data-id="${category.id}" >${category.name}</a>`);
 		}
 
 

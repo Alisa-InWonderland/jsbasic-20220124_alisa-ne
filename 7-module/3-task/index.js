@@ -1,80 +1,66 @@
 import createElement from '../../assets/lib/create-element.js';
 
 export default class StepSlider {
-	constructor({ steps,
-		value = 0 }) {
-		this.value = value;
-		this.steps = steps;
-		this.elem = this.render();
-	}
-	
-	render() { 
+  constructor({ steps, value = 0 }) {
+    this.steps = steps;
+    this.segments = steps - 1;
+    this.render();
 
-		this.slider = createElement(`
-  			<div class="slider">
+    this.addEventListeners();
 
-				<div class="slider__thumb" style="left: 50%;">
-					<span class="slider__value">${this.value}</span>
-				</div>
+    this.setValue(value);
+  }
 
-				<div class="slider__progress" style="width: 50%;"></div>
+  render() {
+    this.elem = createElement(`
+      <div class="slider">
+        <div class="slider__thumb">
+          <span class="slider__value"></span>
+        </div>
+        <div class="slider__progress"></div>
+        <div class="slider__steps">
+          ${'<span></span>'.repeat(this.steps)}
+        </div>
+      </div>
+    `);
+  }
 
-				<div class="slider__steps">
-					
-				</div>
-			</div>
-		`);
+  setValue(value) {
+    this.value = value;
 
-		this.sliderSteps = this.slider.querySelector('.slider__steps');
-		
+    let valuePercents = (value / this.segments) * 100;
 
-		for (let i = 0; i < this.steps; i++) {
-			this.sliderSteps.insertAdjacentHTML('beforeend',
-				`<span class="step" data-id="${i}"></span>`);
-		}
+    this.sub('thumb').style.left = `${valuePercents}%`;
+    this.sub('progress').style.width = `${valuePercents}%`;
 
-		console.log(this.steps);
-		console.log(this.value);
+    this.sub('value').innerHTML = value;
 
-		this.slider.addEventListener('click', (event) => {
-			let left = event.clientX - this.elem.getBoundingClientRect().left;
-			let leftRelative = left / this.elem.offsetWidth;
-			let segments = this.steps - 1;
-			let approximateValue = leftRelative * segments;
-			let value = Math.round(approximateValue);
-			let valuePercents = value / segments * 100;
+    if (this.sub('step-active')) {
+      this.sub('step-active').classList.remove('slider__step-active');
+    }
 
-			this.stepList = this.slider.querySelectorAll('.step');
-			this.sliderValue = this.slider.querySelector('.slider__value');
-			//console.log(this.stepList);
+    this.sub('steps').children[this.value].classList.add('slider__step-active');
+  }
 
+  addEventListeners() {
+    this.elem.onclick = this.onClick;
+  }
 
-			
-			/* let span = event.target.closest('.step');
+  onClick = event => {
+    let newLeft = (event.clientX - this.elem.getBoundingClientRect().left) / this.elem.offsetWidth;
 
-			 for (let step of this.stepList) {
-				 step.classList.remove('slider__step-active');
-				 span.classList.add('slider__step-active');
-				 this.sliderValue.textContent = span.getAttribute('data-id'); 
-				
-			} 
- */
-			
-			//step.classList.remove('slider__step-active');
-			//if (span) {
-				//span.classList.add('slider__step-active');
-				//this.sliderValue.textContent = span.getAttribute('data-id');
-			//}
-			
-			const sliderChange = new CustomEvent('slider-change', { 
-  				detail: this.value,
-  				bubbles: true
-			})
+    this.setValue(Math.round(this.segments * newLeft));
 
-			this.slider.dispatchEvent(sliderChange);
-		})
+    this.elem.dispatchEvent(
+      new CustomEvent('slider-change', {
+        detail: this.value,
+        bubbles: true
+      })
+    );
+  }
 
-		return this.slider;
+  sub(ref) {
+    return this.elem.querySelector(`.slider__${ref}`);
+  }
 
-	}
 }
